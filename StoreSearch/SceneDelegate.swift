@@ -18,6 +18,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // If using a storyboard, the `window` property will automatically be initialized and attached to the scene.
         // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
         guard let _ = (scene as? UIWindowScene) else { return }
+        
+        customizeAppearance()
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {
@@ -48,6 +50,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // to restore the scene back to its current state.
     }
 
+    // MARK:- Helper Methods
+    func customizeAppearance() {
+        let barTintColor = UIColor(red: 20/255, green: 160/255,
+                                   blue: 160/255, alpha: 1)
+        UISearchBar.appearance().barTintColor = barTintColor
+    }
 
 }
 
