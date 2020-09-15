@@ -101,33 +101,36 @@ extension SearchViewController: UISearchBarDelegate {
             hasSearched = true
             searchResults = []
             
-            let queue = DispatchQueue.global()
             let url = iTunesURL(searchText: searchBar.text!)
-            print("URL: '\(url)'")
-            
-            queue.async {
-                if let data = self.performStoreRequest(with: url) {
-                    self.searchResults = self.parse(data: data)
-                    self.searchResults.sort(by: <)
-                    
+            let session = URLSession.shared
+            let dataTask = session.dataTask(
+                with: url,
+                completionHandler: { data, response, error in
+                    print("On main thread? " + (Thread.current.isMainThread ? "Yes" : "No"))
+                    if let error = error {
+                        print("Failure! \(error.localizedDescription)")
+                    } else if let httpResponse = response as? HTTPURLResponse,
+                                  httpResponse.statusCode == 200 {
+                        if let data = data {
+                            self.searchResults = self.parse(data: data)
+                            self.searchResults.sort(by: <)
+                            DispatchQueue.main.async {
+                                self.isLoading = false
+                                self.tableView.reloadData()
+                            }
+                            return
+                        }
+                    } else {
+                        print("Failure! \(response!)")
+                    }
                     DispatchQueue.main.async {
-//                        print("DONE!")
+                        self.hasSearched = false
                         self.isLoading = false
                         self.tableView.reloadData()
+                        self.showNetworkError()
                     }
-                    return
-                }
-            }
-            
-            /* if let data = performStoreRequest(with: url) {
-                searchResults = parse(data: data)
-//                searchResults.sort { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
-//                searchResults.sort { $0 < $1 }
-                searchResults.sort(by: <)
-            }
-            
-            isLoading = false
-            tableView.reloadData()  */
+            })
+            dataTask.resume()
         }
     }
     
