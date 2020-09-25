@@ -14,6 +14,8 @@ class LandscapeViewController: UIViewController {
     
     var searchResults = [SearchResult]()
     private var firstTime = true
+    
+    private var downloads = [URLSessionDownloadTask]()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -45,6 +47,13 @@ class LandscapeViewController: UIViewController {
         if firstTime {
             firstTime = false
             tileButtons(searchResults)
+        }
+    }
+    
+    deinit {
+        print("deinit \(self)")
+        for task in downloads {
+            task.cancel()
         }
     }
     
@@ -122,17 +131,17 @@ class LandscapeViewController: UIViewController {
         var column = 0
         var x = marginX
         for (index, result) in searchResults.enumerated() {
-            // 1
-            let button = UIButton(type: .system)
-            button.backgroundColor = UIColor.white
-            button.setTitle("\(index)", for: .normal)
-            // 2
+//            let button = UIButton(type: .system)
+//            button.setTitle("\(index)", for: .normal)
+//            button.backgroundColor = UIColor.white
+            let button = UIButton(type: .custom)
+            button.setBackgroundImage(UIImage(named: "LandscapeButton"), for: .normal)
             button.frame = CGRect(x: x + paddingHorz,
                                   y: marginY + CGFloat(row)*itemHeight + paddingVert,
                                   width: buttonWidth, height: buttonHeight)
-            // 3
+            downloadImage(for: result, andPlaceOn: button)
             scrollView.addSubview(button)
-            // 4
+            
             row += 1
             if row == rowsPerPage {
                 row = 0; x += itemWidth; column += 1
@@ -154,6 +163,27 @@ class LandscapeViewController: UIViewController {
         
         pageControl.numberOfPages = numPages
         pageControl.currentPage = 0
+    }
+    
+    private func downloadImage(for searchResult: SearchResult,
+                               andPlaceOn button: UIButton) {
+        if let url = URL(string: searchResult.imageSmall) {
+            let task = URLSession.shared.downloadTask(with: url) {
+                [weak button] url, response, error in
+                
+                if error == nil, let url = url,
+                    let data = try? Data(contentsOf: url),
+                    let image = UIImage(data: data) {
+                    DispatchQueue.main.async {
+                        if let button = button {
+                            button.setImage(image, for: .normal)
+                        }
+                    }
+                }
+            }
+            task.resume()
+            downloads.append(task)
+        }
     }
     
     /*
