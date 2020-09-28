@@ -77,6 +77,10 @@ class LandscapeViewController: UIViewController {
         }, completion: nil)
     }
     
+    @objc func buttonPressed(_ sender: UIButton) {
+        performSegue(withIdentifier: "ShowDetail", sender: sender)
+    }
+    
     // MARK:- Private Methods
     private func tileButtons(_ searchResults: [SearchResult]) {
         var columnsPerPage = 6
@@ -150,6 +154,9 @@ class LandscapeViewController: UIViewController {
             button.frame = CGRect(x: x + paddingHorz,
                                   y: marginY + CGFloat(row)*itemHeight + paddingVert,
                                   width: buttonWidth, height: buttonHeight)
+            button.tag = 2000 + index
+            button.addTarget(self, action: #selector(buttonPressed),
+                             for: .touchUpInside)
             downloadImage(for: result, andPlaceOn: button)
             scrollView.addSubview(button)
             
@@ -242,15 +249,17 @@ class LandscapeViewController: UIViewController {
         view.addSubview(label)
     }
     
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
+    // MARK:- Navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
+        if segue.identifier == "ShowDetail" {
+            if case .results(let list) = search.state {
+                let detailViewController = segue.destination
+                    as! DetailViewController
+                let searchResult = list[(sender as! UIButton).tag - 2000]
+                detailViewController.searchResult = searchResult
+            }
+        }
     }
-    */
 
 }
 
