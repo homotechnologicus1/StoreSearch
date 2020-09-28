@@ -56,6 +56,8 @@ class Search {
                     return
                 }
                 
+//                sleep(5)
+                
                 if let httpResponse = response as? HTTPURLResponse,
                     httpResponse.statusCode == 200, let data = data {
                     var searchResults = self.parse(data: data)
