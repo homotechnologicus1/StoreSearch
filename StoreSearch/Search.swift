@@ -86,14 +86,14 @@ class Search {
         let encodedText = searchText.addingPercentEncoding(
             withAllowedCharacters: CharacterSet.urlQueryAllowed)!
         
-        let locale = Locale.autoupdatingCurrent
-        let language = locale.identifier
-        let countryCode = locale.regionCode ?? "US"
+        let urlString = "https://itunes.apple.com/search?" + "term=\(encodedText)&limit=200&entity=\(kind)"
+//        let locale = Locale.autoupdatingCurrent
+//        let language = locale.identifier
+//        let countryCode = locale.regionCode ?? "US"
         
-//        let urlString = "https://itunes.apple.com/search?" + "term=\(encodedText)&limit=200&entity=\(kind)"
-        let urlString = "https://itunes.apple.com/search?" +
-            "term=\(encodedText)&limit=200&entity=\(kind)" +
-            "&lang=\(language)&country=\(countryCode)"
+//        let urlString = "https://itunes.apple.com/search?" +
+//            "term=\(encodedText)&limit=200&entity=\(kind)" +
+//            "&lang=\(language)&country=\(countryCode)"
         
         let url = URL(string: urlString)
         print("URL: \(url!)")
