@@ -86,14 +86,35 @@ class SearchViewController: UIViewController {
         with coordinator: UIViewControllerTransitionCoordinator) {
         super.willTransition(to: newCollection, with: coordinator)
         
-        switch newCollection.verticalSizeClass {
-        case .compact:
-            showLandscape(with: coordinator)
-        case .regular, .unspecified:
-            hideLandscape(with: coordinator)
-        @unknown default:
-            fatalError()
+        let rect = UIScreen.main.bounds
+        print("width \(rect.width), height \(rect.height)")
+        if (rect.width == 736 && rect.height == 414) ||   // 8 Plus: portrait
+           (rect.width == 414 && rect.height == 736) {    // landscape
+            if presentedViewController != nil {
+                dismiss(animated: true, completion: nil)
+            }
+        } else if (rect.width == 896 && rect.height == 414) ||   // Pro Max: portrait
+                  (rect.width == 414 && rect.height == 896) {    // landscape
+            if presentedViewController != nil {
+                dismiss(animated: true, completion: nil)
+            }
+        } else if UIDevice.current.userInterfaceIdiom != .pad {
+            switch newCollection.verticalSizeClass {
+            case .compact:
+                showLandscape(with: coordinator)
+            case .regular, .unspecified:
+                hideLandscape(with: coordinator)
+            /*
+                 Switch covers known cases, but 'UIUserInterfaceSizeClass'
+                 may have additional unknown values, possibly added
+                 in future versions
+                 Handle unknown values using "@unknown default"
+            */
+            @unknown default:
+                fatalError()
+            }
         }
+        
     }
     
     func showLandscape(with coordinator:
